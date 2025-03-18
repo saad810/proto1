@@ -32,7 +32,7 @@ export default function StudentLayout() {
         main: { backgroundColor: theme.colors.gray[1] },
       })}
     >
-      <Card p="md" shadow="md" w="100%" h="100%">
+      <Card shadow="md" w="100%" h="100%">
         <Outlet />
       </Card>
     </AppShell>
