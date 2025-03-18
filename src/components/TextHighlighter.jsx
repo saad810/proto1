@@ -9,7 +9,7 @@ const HighlightedText = ({ original, corrected }) => {
       {diff.map((part, index) => (
         <span
           key={index}
-          style={{ backgroundColor: part.added ? "yellow" : part.removed ? "lightcoral" : "transparent" }}
+          style={{display:"inline-block", backgroundColor: part.added ? "yellow" : part.removed ? "lightcoral" : "transparent" }}
         >
           {part.value}
         </span>
