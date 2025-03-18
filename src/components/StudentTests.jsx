@@ -4,8 +4,6 @@ import { IconBook } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 
 const subjects = [
-  { title: "Mathematics", resources: 10, students: 30 },
-  { title: "Science", resources: 8, students: 25 },
   { title: "History", resources: 5, students: 20 },
 ];
 

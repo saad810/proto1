@@ -18,11 +18,7 @@ import {
 import { IconBook, IconArrowLeft, IconCheck } from "@tabler/icons-react";
 import toast from "react-hot-toast";
 import axios from "axios";
-import {
-    createItem,
-    deleteItem,
-    getItem,
-} from '../lib/storage'
+
 const books = ["Beginning of World war 1"];
 const subjects = [
     { title: "History", resources: books.length, students: 20 },
@@ -40,7 +36,6 @@ export default function GenerateTasks() {
 
     const handleGenerateQuestions = async () => {
         try {
-
             setLoading(true);
             const response = await axios.post("http://127.0.0.1:5000/generate/questions", {
                 book: selectedBook,
@@ -48,27 +43,30 @@ export default function GenerateTasks() {
                 num_questions: numQuestions,
             });
 
-            console.log(response.data?.questions[0]);
+            if (!response.data?.questions || response.data.questions.length === 0) {
+                throw new Error("No questions received from API");
+            }
+
             toast.success("Questions generated successfully");
 
-
             setTimeout(() => {
-                setGeneratedQuestions(response.data?.questions);
+                setGeneratedQuestions(response.data.questions);
                 setLoading(false);
             }, 800);
 
+            localStorage.removeItem("tasks");
 
-            if (localStorage.getItem('tasks') !== null) {
-                localStorage.deleteItem('tasks')
-            }
-            localStorage.setItem('tasks',JSON.stringify(response.data?.questions))
-
+            const tasks = {
+                book: selectedBook,
+                subject: "history",
+                num_questions: numQuestions,
+                questions: response.data.questions,
+                created_at: new Date().toISOString(),
+            };
+            localStorage.setItem("tasks", JSON.stringify(tasks));
 
         } catch (error) {
-            // setLoading(false);
             toast.error("Failed to generate questions");
-
-
         } finally {
             setLoading(false);
         }
@@ -148,8 +146,9 @@ export default function GenerateTasks() {
                             label="Select a Book"
                             placeholder="Choose a book"
                             value={selectedBook}
-                            onChange={setSelectedBook}
+                            onChange={(value) => setSelectedBook(value)} // Ensures state updates properly
                         />
+
                         <NumberInput
                             label="Enter Number of Questions"
                             placeholder="Number of questions"
