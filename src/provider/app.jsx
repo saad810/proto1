@@ -10,9 +10,6 @@ const AppProvider = ({ children }) => {
     return (
         <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
             <RootLayout>
-                {/* <React.Suspense fallback={null}>
-                    <ReactQueryDevtools initialIsOpen={false} />
-                </React.Suspense> */}
                 <BrowserRouter>{children}</BrowserRouter>
                 <Toaster
                     toastOptions={{

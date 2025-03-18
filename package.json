@@ -25,6 +25,8 @@
     "@tiptap/react": "^2.11.5",
     "@tiptap/starter-kit": "^2.11.5",
     "antd": "^5.24.3",
+    "axios": "^1.8.3",
+    "diff": "^7.0.0",
     "lucide-react": "^0.479.0",
     "react": "^19.0.0",
     "react-confetti": "^6.4.0",
