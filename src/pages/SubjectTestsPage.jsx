@@ -134,7 +134,7 @@ export default function SubjectTestsPage() {
             <EvaluationCard evaluationData={evaluation} />
             <Group position="right" mt="md">
               <Button onClick={handleGrammar} variant="filled" disabled={grammarChecked}>
-                {setLoadingGrammer ? "Checking..." : "Check Grammar"}
+                {loadingGrammer ? "Checking..." : "Check Grammar"}
               </Button>
             </Group>
             {grammarChecked && grammarResult && <TextHighlighter data={grammarResult} />}

@@ -13,7 +13,7 @@ const EvaluationCard = ({ evaluationData }) => {
                 <strong>Status:</strong> {evaluationData.is_correct ? "Correct" : "Incorrect"}
             </Text>
             <Text size="sm">
-                <strong>Score:</strong> {evaluationData.score.toFixed(2)}
+                <strong>Score:</strong> {evaluationData.score.toFixed(2) * 100}%
             </Text>
 
             {evaluationData.incorrect_facts && evaluationData.incorrect_facts.length > 0 && (
