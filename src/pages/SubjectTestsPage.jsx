@@ -51,7 +51,7 @@ export default function SubjectTestsPage() {
 
     try {
       setLoading(true);
-      const response = await axios.post("http://127.0.0.1:5000/answer/analyze", {
+      const response = await axios.post("https://saad810-lms-api.hf.space/answer/analyze", {
         "question": testData.question,
         "user_answer": answer,
         "subject": "history"
@@ -76,7 +76,7 @@ export default function SubjectTestsPage() {
     }
     try {
       setLoadingGrammer(true);
-      const response = await axios.post("http://127.0.0.1:5000/grammar/check", {
+      const response = await axios.post("https://saad810-lms-api.hf.space/grammar/check", {
         text: answer,
       });
       console.log(response.data);

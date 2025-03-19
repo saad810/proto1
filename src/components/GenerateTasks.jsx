@@ -53,7 +53,7 @@ export default function GenerateTasks() {
             alert(
                 `Generating ${numQuestions} ${questionType} questions for ${selectedBook} in ${selectedSubject.title}`
             )
-            const response = await axios.post("http://127.0.0.1:5000/generate/questions", {
+            const response = await axios.post("https://saad810-lms-api.hf.space/generate/questions", {
                 book: "Beginning of World war 1",
                 subject: "history",
                 num_questions: numQuestions,
@@ -259,7 +259,7 @@ export default function GenerateTasks() {
                                 fullWidth
                                 mt="md"
                                 disabled={selectedQuestions.length === 0}
-                                
+
                             >
                                 Assign to All Students
                             </Button>
