@@ -58,6 +58,7 @@ export default function SubjectTestsPage() {
       });
       console.log(response.data);
       setEvaluation(response.data);
+    setLoading(false);
     } catch (error) {
       console.error("Error fetching questions:", error.message);
     } finally {
@@ -132,7 +133,7 @@ export default function SubjectTestsPage() {
             </Text>
             <EvaluationCard evaluationData={evaluation} />
             <Group position="right" mt="md">
-              <Button onClick={handleGrammar} variant="filled" disabled={loading || grammarChecked}>
+              <Button onClick={handleGrammar} variant="filled" disabled={grammarChecked}>
                 {setLoadingGrammer ? "Checking..." : "Check Grammar"}
               </Button>
             </Group>
