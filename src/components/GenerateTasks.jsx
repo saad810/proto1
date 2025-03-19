@@ -1,194 +1,272 @@
 import React, { useState } from "react";
 import {
-  Card,
-  Text,
-  Grid,
-  Button,
-  Select,
-  NumberInput,
-  Group,
-  Checkbox,
-  ScrollArea,
-  Title,
-  Container,
-  Box,
-  Transition,
-  LoadingOverlay,
+    Card,
+    Text,
+    Grid,
+    Button,
+    Select,
+    NumberInput,
+    Group,
+    ScrollArea,
+    Title,
+    Container,
+    Box,
+    LoadingOverlay,
+    Badge,
+    List,
 } from "@mantine/core";
-import { IconBook, IconArrowLeft, IconCheck } from "@tabler/icons-react";
+import { ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
 import axios from "axios";
 
 const books = ["Beginning of World War 1"];
 const subjects = [{ title: "History", resources: books.length, students: 20 }];
+const questionTypes = ["mcqs", "true_false", "text_based", "fill_in_the_blank"];
 
 export default function GenerateTasks() {
-  const [selectedSubject, setSelectedSubject] = useState(null);
-  const [selectedBook, setSelectedBook] = useState(null);
-  const [numQuestions, setNumQuestions] = useState("");
-  const [generatedQuestions, setGeneratedQuestions] = useState([]);
-  const [selectedQuestions, setSelectedQuestions] = useState([]);
-  const [loading, setLoading] = useState(false);
+    const [selectedSubject, setSelectedSubject] = useState(null);
+    const [selectedBook, setSelectedBook] = useState(null);
+    const [numQuestions, setNumQuestions] = useState(5);
+    const [questionType, setQuestionType] = useState("text_based");
+    const [generatedQuestions, setGeneratedQuestions] = useState([]);
+    const [selectedQuestions, setSelectedQuestions] = useState([]);
+    const [loading, setLoading] = useState(false);
 
-  const handleGenerateQuestions = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.post("http://127.0.0.1:5000/generate/questions", {
-        book: selectedBook,
-        subject: "history",
-        num_questions: numQuestions,
-      });
+    // Separate handler for Book selection
+    const selectBook = (value) => {
+        setSelectedBook(value);
+    };
 
-      if (!response.data?.questions || response.data.questions.length === 0) {
-        throw new Error("No questions received from API");
-      }
+    // Separate handler for Question Type selection
+    const selectType = (value) => {
+        setQuestionType(value);
+    };
 
-      toast.success("Questions generated successfully");
-      setTimeout(() => {
-        setGeneratedQuestions(response.data.questions);
-        setLoading(false);
-      }, 800);
+    // Separate handler for Number of Questions change
+    const handleNumQuestionsChange = (value) => {
+        setNumQuestions(value);
+    };
 
-      localStorage.removeItem("tasks");
-      const tasks = {
-        book: selectedBook,
-        subject: "history",
-        num_questions: numQuestions,
-        questions: response.data.questions,
-        created_at: new Date().toISOString(),
-      };
-      localStorage.setItem("tasks", JSON.stringify(tasks));
-    } catch (error) {
-      toast.error("Failed to generate questions");
-    } finally {
-      setLoading(false);
-    }
-  };
+    const handleGenerateQuestions = async () => {
+        try {
+            setLoading(true);
+            alert(
+                `Generating ${numQuestions} ${questionType} questions for ${selectedBook} in ${selectedSubject.title}`
+            )
+            const response = await axios.post("http://127.0.0.1:5000/generate/questions", {
+                book: "Beginning of World war 1",
+                subject: "history",
+                num_questions: numQuestions,
+                type: questionType,
+            });
+            if (!response.data?.questions || response.data.questions.length === 0) {
+                throw new Error("No questions received from API");
+            }
+            toast.success("Questions generated successfully");
+            setGeneratedQuestions(response.data.questions);
+            localStorage.setItem("tasks", JSON.stringify(response.data.questions));
+        } catch (error) {
+            toast.error("Failed to generate questions");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  const handleAssignQuestions = () => {
-    toast.success(`Assigned ${selectedQuestions.length} questions to students.`);
-  };
+    const toggleQuestionSelection = (question) => {
+        setSelectedQuestions((prev) => {
+            if (prev.includes(question)) {
+                return prev.filter((q) => q !== question);
+            }
+            return [...prev, question];
+        });
+    };
 
-  return (
-    <Container size="lg" style={{ padding: "20px 0" }}>
-      {!selectedSubject ? (
-        <>
-          <Title order={2} weight={700} mb="lg">
-            Select a Subject
-          </Title>
-          <Grid gutter="xl">
-            {subjects.map((subject) => (
-              <Grid.Col xs={12} sm={6} md={4} key={subject.title}>
-                <Card
-                  shadow="md"
-                  padding="lg"
-                  style={{
-                    cursor: "pointer",
-                    transition: "transform 150ms ease, box-shadow 150ms ease",
-                    background: "linear-gradient(135deg, #f5f7fa, #c3cfe2)",
-                  }}
-                  onClick={() => setSelectedSubject(subject)}
-                  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-                >
-                  <Group position="apart">
-                    <Text weight={700} size="lg">
-                      {subject.title}
+    // Render question content based on type
+    const renderQuestionContent = (question) => {
+        switch (question.type) {
+            case "mcq":
+                return (
+                    <List spacing="xs" size="sm" mb="sm">
+                        {question.options?.map((option, i) => (
+                            <List.Item key={i}>
+                                <Text
+                                    size="sm"
+                                    weight={option === question.answer ? 700 : 400}
+                                    color={option === question.answer ? "green" : "dimmed"}
+                                >
+                                    {option}
+                                </Text>
+                            </List.Item>
+                        ))}
+                    </List>
+                );
+            case "true_false":
+                return (
+                    <Group spacing="xs" mb="sm">
+                        {["True", "False"].map((option, i) => (
+                            <Badge
+                                key={i}
+                                color={option === question.answer ? "green" : "gray"}
+                                variant="light"
+                            >
+                                {option}
+                            </Badge>
+                        ))}
+                    </Group>
+                );
+            case "fill_in_the_blank":
+                return (
+                    <Box mb="sm">
+                        <Text size="sm" color="dimmed">
+                            {question.question}
+                        </Text>
+                        <Text size="sm" weight={700} color="green">
+                            Answer: {question.answer}
+                        </Text>
+                    </Box>
+                );
+            case "text_based":
+            default:
+                return (
+                    <Text size="sm" color="dimmed" mb="sm">
+                        {question.question}
                     </Text>
-                    <IconBook size={24} />
-                  </Group>
-                  <Text size="sm" color="dimmed" mt="xs">
-                    Resources: {subject.resources}
-                  </Text>
-                  <Text size="sm" color="dimmed">
-                    Students: {subject.students}
-                  </Text>
-                </Card>
-              </Grid.Col>
-            ))}
-          </Grid>
-        </>
-      ) : (
-        <Box>
-          <Button
-            variant="subtle"
-            leftIcon={<IconArrowLeft size={16} />}
-            onClick={() => {
-              setSelectedSubject(null);
-              setGeneratedQuestions([]);
-              setSelectedQuestions([]);
-            }}
-            mb="lg"
-          >
-            Back
-          </Button>
-          <Title order={3} weight={700} mb="md">
-            Generate Tasks for {selectedSubject.title}
-          </Title>
-          <Group mb="md" spacing="md">
-            <Select
-              data={books}
-              label="Select a Book"
-              placeholder="Choose a book"
-              value={selectedBook}
-              onChange={(value) => setSelectedBook(value)}
-            />
-            <NumberInput
-              label="Enter Number of Questions"
-              placeholder="Number of questions"
-              value={numQuestions}
-              onChange={(value) => setNumQuestions(value)}
-            />
-          </Group>
-          <Button
-            onClick={handleGenerateQuestions}
-            fullWidth
-            variant="filled"
-            style={{ backgroundColor: "#007bff" }}
-            mb="md"
-          >
-            {loading ? "Generating Questions..." : "Generate Questions"}
-          </Button>
+                );
+        }
+    };
 
-          <Box style={{ position: "relative" }}>
-            <LoadingOverlay visible={loading} overlayBlur={2} />
-            <Transition mounted={generatedQuestions.length > 0} transition="fade" duration={400}>
-              {(styles) => (
-                <div style={styles}>
-                  <Title order={4} weight={700} mb="md">
-                    Select Questions:
-                  </Title>
-                  <ScrollArea style={{ height: "max-content", marginBottom: 20 }}>
-                    {generatedQuestions.map((question, index) => (
-                      <Checkbox
-                        key={index}
-                        label={question}
-                        mb="sm"
-                        onChange={(event) => {
-                          if (event.currentTarget.checked) {
-                            setSelectedQuestions((prev) => [...prev, question]);
-                          } else {
-                            setSelectedQuestions((prev) => prev.filter((q) => q !== question));
-                          }
-                        }}
-                      />
-                    ))}
-                  </ScrollArea>
-                  <Button
-                    onClick={handleAssignQuestions}
-                    leftIcon={<IconCheck size={16} />}
-                    fullWidth
-                    variant="filled"
-                    style={{ backgroundColor: "#28a745" }}
-                  >
-                    Assign to All Students
-                  </Button>
-                </div>
-              )}
-            </Transition>
-          </Box>
-        </Box>
-      )}
-    </Container>
-  );
+    return (
+        <Container size="lg" style={{ padding: "20px 0" }}>
+            {!selectedSubject ? (
+                <>
+                    <Title order={2} mb="lg">
+                        Select a Subject
+                    </Title>
+                    <Grid>
+                        {subjects.map((subject) => (
+                            <Grid.Col xs={12} sm={6} md={4} key={subject.title}>
+                                <Card
+                                    shadow="md"
+                                    padding="lg"
+                                    style={{ cursor: "pointer", transition: "transform 0.2s ease" }}
+                                    onClick={() => setSelectedSubject(subject)}
+                                    withBorder
+                                >
+                                    <Text weight={700} size="lg">
+                                        {subject.title}
+                                    </Text>
+                                    <Text size="sm" color="dimmed">
+                                        Resources: {subject.resources}
+                                    </Text>
+                                    <Text size="sm" color="dimmed">
+                                        Students: {subject.students}
+                                    </Text>
+                                </Card>
+                            </Grid.Col>
+                        ))}
+                    </Grid>
+                </>
+            ) : (
+                <Box>
+                    <Button
+                        onClick={() => setSelectedSubject(null)}
+                        variant="light"
+                        style={{ marginBottom: 20 }}
+                    >
+                        <ArrowLeft size={20} style={{ marginRight: 10 }} />
+                        Back
+                    </Button>
+                    <Title order={3} mb="md">
+                        Generate Tasks for {selectedSubject.title}
+                    </Title>
+                    <Group mb="md">
+                        <Select
+                            data={books}
+                            label="Select a Book"
+                            placeholder="Choose a book"
+                            value={selectedBook}
+                            onChange={selectBook}
+                        />
+                        <NumberInput
+                            label="Enter Number of Questions"
+                            placeholder="Number of questions"
+                            value={numQuestions}
+                            onChange={handleNumQuestionsChange}
+                        />
+                        <Select
+                            data={questionTypes}
+                            label="Select Question Type"
+                            placeholder="Choose question type"
+                            value={questionType}
+                            onChange={selectType}
+                        />
+                    </Group>
+                    <Button
+                        onClick={handleGenerateQuestions}
+                        fullWidth
+                        variant="filled"
+                        mt="md"
+                    >
+                        {loading ? "Generating Questions..." : "Generate Questions"}
+                    </Button>
+                    <Box style={{ position: "relative", marginTop: 20 }}>
+                        <LoadingOverlay visible={loading} overlayBlur={2} />
+                        <ScrollArea style={{ height: "max-content", width: "100%" }}>
+                            <Grid gutter="md">
+                                {generatedQuestions.map((question, index) => (
+                                    <Grid.Col span={6} key={index}>
+                                        <Card
+                                            shadow="sm"
+                                            padding="md"
+                                            withBorder
+                                            radius="md"
+                                            style={{
+                                                cursor: "pointer",
+                                                border: selectedQuestions.includes(question)
+                                                    ? "2px solid #4caf50"
+                                                    : "1px solid lightgray",
+                                                transition: "border 0.2s ease, transform 0.2s ease",
+                                            }}
+                                            onClick={() => toggleQuestionSelection(question)}
+                                            sx={{
+                                                "&:hover": {
+                                                    transform: "scale(1.02)",
+                                                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+                                                },
+                                            }}
+                                        >
+                                            <Group position="apart" mb="xs">
+                                                <Text weight={700} size="md">
+                                                    {question.question}
+                                                </Text>
+                                                <Badge color="blue" variant="light">
+                                                    {question.type.toUpperCase()}
+                                                </Badge>
+                                            </Group>
+                                            {renderQuestionContent(question)}
+                                        </Card>
+                                    </Grid.Col>
+                                ))}
+                            </Grid>
+                        </ScrollArea>
+                        {generatedQuestions.length > 0 && (
+                            <Button
+                                onClick={() =>
+                                    toast.success(
+                                        `Assigned ${selectedQuestions.length} questions to students.`
+                                    )
+                                }
+                                fullWidth
+                                mt="md"
+                                disabled={selectedQuestions.length === 0}
+                                
+                            >
+                                Assign to All Students
+                            </Button>
+                        )}
+                    </Box>
+                </Box>
+            )}
+        </Container>
+    );
 }
