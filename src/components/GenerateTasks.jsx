@@ -57,7 +57,7 @@ export default function GenerateTasks() {
             alert(
                 `Generating ${numQuestions} ${questionType} questions for ${selectedBook} in ${subject}`
             )
-            const response = await axios.post("https://saad810-lms-api.hf.space/generate/questions", {
+            const response = await axios.post("https://saad810-lms-api-1.hf.space/generate/questions", {
                 book: "Beginning of World war 1",
                 subject: "history",
                 num_questions: numQuestions,
@@ -93,7 +93,7 @@ export default function GenerateTasks() {
                 task_name: taskName,
                 question_count: selectedQuestions.length,
             };
-            const response = await axios.post("http://127.0.0.1:5000/teacher-tasks", payload);
+            const response = await axios.post("https://saad810-lms-api-1.hf.space/teacher-tasks", payload);
             console.log(response.data);
             toast.success("Task assigned successfully");
             // Optionally, reset selected questions after successful assignment

@@ -41,7 +41,7 @@ export default function DocsManagement() {
   async function fetchFiles() {
     try {
       setLoadFiles(true);
-      const response = await axios.get("http://127.0.0.1:5000/resources/");
+      const response = await axios.get("https://saad810-lms-api-1.hf.space/resources/");
       console.log(response?.data?.resources);
       setFiles(response?.data?.resources);
     } catch (error) {
@@ -85,7 +85,7 @@ export default function DocsManagement() {
       formData.append("subject", subject);
     });
     try {
-      const response = await axios.post("http://127.0.0.1:5000/resources/upload", formData, {
+      const response = await axios.post("https://saad810-lms-api-1.hf.space/resources/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       console.log(response);
@@ -103,7 +103,7 @@ export default function DocsManagement() {
   // Delete file
   const deleteFile = async (fileId, index) => {
     try {
-      await axios.delete(`http://127.0.0.1:5000/resources/delete?id=${fileId}`);
+      await axios.delete(`https://saad810-lms-api-1.hf.space/resources/delete?id=${fileId}`);
       setFiles(files.filter((_, i) => i !== index));
       toast.success("File deleted successfully!");
     } catch (error) {
