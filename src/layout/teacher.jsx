@@ -1,11 +1,17 @@
 import TopBar from "../components/TopBar";
-import { Icon } from "../ui/Icon";
 import NavLink from "../ui/NavLink";
-import { AppShell, Card, Navbar, ScrollArea } from "@mantine/core";
+import { AppShell, Card, Navbar, ScrollArea, NavLink as MantineNavLink } from "@mantine/core";
 import React from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
+import { Book, Building, File, GraduationCap } from "lucide-react";
 
 export default function AdminLayout() {
+  const subjects = [
+    { name: "History", path: "history" },
+    // { name: "Physics", path: "physics" },
+    // { name: "Chemistry", path: "chemistry" },
+    // { name: "Biology", path: "biology" },
+  ];
 
   return (
     <AppShell
@@ -14,23 +20,45 @@ export default function AdminLayout() {
       navbar={
         <Navbar width={{ base: 300 }} p="xs">
           <Navbar.Section grow component={ScrollArea}>
-            <NavLink 
-              to="/teacher" 
-              color="pink" 
-              icon={<Icon name="Institution" />}
-            >
-              Generate Tasks
-            </NavLink>
-            <NavLink 
-              to="/teacher/answers" 
-              color="blue" 
-              icon={<Icon name="Teachers" />}
-            >
-              Student Response
-            </NavLink>
-           
+            {subjects.map((subject) => (
+              <MantineNavLink
+                key={subject.path}
+                label={subject.name}
+                icon={<Book size={16} />}
+                defaultOpened
+              >
+                <NavLink
+                  to={`/teacher/${subject.path}`}
+                  color="pink"
+                  icon={<Building size={16} />}
+                >
+                  Tasks
+                </NavLink>
+                <NavLink
+                  to={`/teacher/${subject.path}/generate`}
+                  color="pink"
+                  icon={<Building size={16} />}
+                >
+                  Generate Tasks
+                </NavLink>
+                <NavLink
+                  to={`/teacher/${subject.path}/resources`}
+                  color="blue"
+                  icon={<File size={16} />}
+                >
+                  Resources
+                </NavLink>
+                <NavLink
+                  to={`/teacher/${subject.path}/answers`}
+                  color="blue"
+                  icon={<GraduationCap size={16} />}
+                >
+                  Student Response
+                </NavLink>
+              </MantineNavLink>
+            ))}
           </Navbar.Section>
-             </Navbar>
+        </Navbar>
       }
       styles={(theme) => ({
         main: { backgroundColor: theme.colors.gray[1] },

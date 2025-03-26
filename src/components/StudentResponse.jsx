@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Paper, Title, Text, Table, Button, Modal, Divider, Group } from "@mantine/core";
 import { IconEye, IconX } from "@tabler/icons-react";
-
+import { useParams } from "react-router-dom";
+// useParams
 const sampleResponses = [
   {
     question: "What are the benefits of renewable energy?",
@@ -26,7 +27,7 @@ const sampleResponses = [
 export default function StudentResponse() {
   const [opened, setOpened] = useState(false);
   const [selectedResponse, setSelectedResponse] = useState(null);
-
+  const { subject } = useParams();
   const handleRowClick = (response) => {
     setSelectedResponse(response);
     setOpened(true);
@@ -34,7 +35,7 @@ export default function StudentResponse() {
 
   return (
     <Paper radius="md" p="xl" withBorder>
-      <Title order={2} mb="md" align="center">Student Responses</Title>
+      <Title order={2} mb="md" align="center">Student Responses {subject}</Title>
       <Table striped highlightOnHover withBorder>
         <thead>
           <tr>
