@@ -303,7 +303,7 @@ function TaskCard({ task, handleUpdate, handleDelete, handleView }) {
             </ActionIcon>
           </Menu.Target>
           <Menu.Dropdown>
-            <Menu.Item leftSection={<Eye size={16} />}>View</Menu.Item>
+            <Menu.Item leftSection={<Eye size={16} />} onClick={handleView}>View</Menu.Item>
             <Menu.Item leftSection={<Pencil size={16} />} onClick={handleUpdate}>
               Update
             </Menu.Item>

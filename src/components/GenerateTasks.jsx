@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     Card,
     Text,
@@ -25,7 +25,7 @@ import { useParams } from "react-router-dom";
 
 const books = ["Beginning of World War 1"];
 const questionTypes = ["mcqs", "true_false", "text_based", "fill_in_the_blank"];
-
+// http://127.0.0.1:5000/resources/files
 export default function GenerateTasks() {
     const { subject } = useParams();
     const [taskName, setTaskName] = useState(null);
@@ -35,6 +35,23 @@ export default function GenerateTasks() {
     const [generatedQuestions, setGeneratedQuestions] = useState([]);
     const [selectedQuestions, setSelectedQuestions] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [books, setBooks] = useState([]);
+
+    const fetchFiles = async () => {
+        try {
+            const response = await axios.get("http://127.0.0.1:5000/resources/files");
+            console.log(response.data);
+            setBooks(response?.data?.files);
+
+        } catch (error) {
+            console.error(error);
+            
+        }
+    }
+
+    useEffect(() => {
+        fetchFiles();
+    }, []);
 
     // Separate handler for Book selection
     const selectBook = (value) => {
@@ -58,9 +75,9 @@ export default function GenerateTasks() {
                 `Generating ${numQuestions} ${questionType} questions for ${selectedBook} in ${subject}`
             )
             
-            const response = await axios.post("https://saad810-lms-api-1.hf.space/tasks/generate", {
-                book: "Beginning of World war 1",
-                subject: "history",
+            const response = await axios.post("http://127.0.0.1:5000/tasks/generate", {
+                book: selectedBook,
+                subject: 'history',
                 num_questions: numQuestions,
                 type: questionType,
             });

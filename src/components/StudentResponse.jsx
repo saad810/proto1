@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Paper,
   Title,
@@ -15,44 +16,61 @@ import { useParams } from "react-router-dom";
 
 const sampleResponses = [
   {
-    question: "What are the benefits of renewable energy?",
-    answer: "Renewable energy reduces carbon emissions and is sustainable.",
-    evaluation: "Good response with clear points.",
-    evaluationMarks: "10",
-    grammarAnalysis: "Well-structured sentence with correct grammar.",
-    grammarMarks: "10"
-  },
-  {
-    question: "Explain Newton's First Law of Motion.",
-    answer: "An object remains at rest or in uniform motion unless acted upon by an external force.",
-    evaluation: "Accurate and concise answer.",
-    evaluationMarks: "9",
-    grammarAnalysis: "Grammatically correct with proper scientific terminology.",
-    grammarMarks: "9"
-  },
-  {
-    question: "Describe the water cycle.",
-    answer: "Water evaporates, condenses into clouds, and then precipitates.",
-    evaluation: "Covers key stages but could elaborate more.",
-    evaluationMarks: "8",
-    grammarAnalysis: "Minor grammatical issues, such as sentence fragmentation.",
-    grammarMarks: "7"
+    question: "What event is considered the trigger for the First World War?",
+    answer: "",
+    evaluationMarks: 0,
+    subject: "History",
+    evaluation_remarks:
+      "The evaluation was not conducted, resulting in a score of 0 out of 100, leaving no room for assessing strengths or identifying areas for improvement.",
+    createdAt: "2025-03-27 11:21:06.507000"
   }
 ];
+
+// Helper function to truncate text to a given word limit
+const truncateText = (text, wordLimit) => {
+  if (!text) return "";
+  const words = text.split(" ");
+  if (words.length <= wordLimit) return text;
+  return words.slice(0, wordLimit).join(" ") + " ...";
+};
+
+// Helper function to format date strings
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleString();
+};
 
 export default function StudentResponse() {
   const [responses, setResponses] = useState([]);
   const [viewModalOpened, setViewModalOpened] = useState(false);
   const [selectedResponse, setSelectedResponse] = useState(null);
   const [editModalOpened, setEditModalOpened] = useState(false);
-  // editingResponse holds the response object along with its index
   const [editingResponse, setEditingResponse] = useState(null);
   const { subject } = useParams();
 
   useEffect(() => {
-    const storedResponses = JSON.parse(localStorage.getItem("responses")) || sampleResponses;
-    setResponses(storedResponses);
-  }, []);
+    const fetchData = async () => {
+      try {
+        // Fetch responses from the server
+        const response = await axios.get("http://127.0.0.1:5000/evaluation/all");
+        let data = response.data;
+        // If a subject is provided via URL, filter responses accordingly (case-insensitive)
+        if (subject) {
+          data = data.filter((r) => r.subject.toLowerCase() === subject.toLowerCase());
+        }
+        setResponses(data);
+        // Store the fetched responses in localStorage for persistence/fallback
+        localStorage.setItem("responses", JSON.stringify(data));
+      } catch (error) {
+        console.error("Error fetching responses:", error);
+        // Fallback to stored responses if available
+        const storedResponses = JSON.parse(localStorage.getItem("responses")) || sampleResponses;
+        setResponses(storedResponses);
+      }
+    };
+
+    fetchData();
+  }, [subject]);
 
   const openViewModal = (response) => {
     setSelectedResponse(response);
@@ -66,13 +84,16 @@ export default function StudentResponse() {
 
   const handleSaveEdit = () => {
     if (editingResponse) {
+      const marks = Number(editingResponse.evaluationMarks);
+      if (marks > 100) {
+        alert("Maximum allowed marks is 100.");
+        return;
+      }
       const updatedResponses = [...responses];
       updatedResponses[editingResponse.index] = {
         ...updatedResponses[editingResponse.index],
-        evaluation: editingResponse.evaluation,
-        evaluationMarks: editingResponse.evaluationMarks,
-        grammarAnalysis: editingResponse.grammarAnalysis,
-        grammarMarks: editingResponse.grammarMarks,
+        evaluationMarks: marks,
+        evaluation_remarks: editingResponse.evaluation_remarks
       };
       setResponses(updatedResponses);
       localStorage.setItem("responses", JSON.stringify(updatedResponses));
@@ -84,25 +105,29 @@ export default function StudentResponse() {
   return (
     <Paper radius="md" p="xl" withBorder>
       <Title order={2} mb="md" align="center">
-        Student Responses {subject}
+        Student Responses {subject && `(${subject})`}
       </Title>
       <Table striped highlightOnHover withBorder>
         <thead>
           <tr>
             <th>Question</th>
-            <th>Student Answer</th>
-            <th>Evaluation</th>
-            <th>Grammar Analysis</th>
+            <th>Answer</th>
+            <th>Subject</th>
+            <th>Evaluation Marks</th>
+            <th>Evaluation Remarks</th>
+            <th>Created At</th>
             <th>Action</th>
           </tr>
         </thead>
         <tbody>
           {responses.map((response, index) => (
             <tr key={index}>
-              <td>{response.question}</td>
-              <td>{response.answer}</td>
-              <td>{response.evaluation}</td>
-              <td>{response.grammarAnalysis}</td>
+              <td>{truncateText(response.question, 15)}</td>
+              <td>{truncateText(response.answer, 15)}</td>
+              <td>{response.subject}</td>
+              <td>{response.evaluationMarks}</td>
+              <td>{truncateText(response.evaluation_remarks,10)}</td>
+              <td>{formatDate(response.createdAt)}</td>
               <td>
                 <Group spacing="xs">
                   <Button
@@ -141,23 +166,31 @@ export default function StudentResponse() {
             </Text>
             <Text mb="md">{selectedResponse.question}</Text>
             <Text weight={500} size="lg" mb="xs">
-              Student Answer:
+              Answer:
+            </Text>
+            <Text mb="md">{selectedResponse.answer}</Text>
+            <Text weight={500} size="lg" mb="xs">
+              Subject:
             </Text>
             <Text mb="md" color="blue">
-              {selectedResponse.answer}
+              {selectedResponse.subject}
             </Text>
             <Text weight={500} size="lg" mb="xs">
-              Evaluation:
+              Evaluation Marks:
             </Text>
             <Text mb="md" color="green">
-              {selectedResponse.evaluation} ({selectedResponse.evaluationMarks} marks)
+              {selectedResponse.evaluationMarks}
             </Text>
             <Text weight={500} size="lg" mb="xs">
-              Grammar Analysis:
+              Evaluation Remarks:
             </Text>
             <Text mb="md" color="red">
-              {selectedResponse.grammarAnalysis} ({selectedResponse.grammarMarks} marks)
+              {selectedResponse.evaluation_remarks}
             </Text>
+            <Text weight={500} size="lg" mb="xs">
+              Created At:
+            </Text>
+            <Text mb="md">{formatDate(selectedResponse.createdAt)}</Text>
             <Group position="right" mt="md">
               <Button variant="outline" onClick={() => setViewModalOpened(false)}>
                 Close
@@ -174,40 +207,31 @@ export default function StudentResponse() {
           setEditModalOpened(false);
           setEditingResponse(null);
         }}
-        title={<Title order={3}>Edit Evaluation & Analysis</Title>}
+        title={<Title order={3}>Edit Evaluation</Title>}
         centered
       >
         {editingResponse && (
           <>
             <TextInput
-              label="Evaluation"
-              value={editingResponse.evaluation}
-              onChange={(e) =>
-                setEditingResponse({ ...editingResponse, evaluation: e.target.value })
-              }
-              mb="sm"
-            />
-            <TextInput
               label="Evaluation Marks"
+              type="number"
               value={editingResponse.evaluationMarks}
               onChange={(e) =>
-                setEditingResponse({ ...editingResponse, evaluationMarks: e.target.value })
+                setEditingResponse({
+                  ...editingResponse,
+                  evaluationMarks: e.target.value
+                })
               }
               mb="sm"
             />
             <TextInput
-              label="Grammar Analysis"
-              value={editingResponse.grammarAnalysis}
+              label="Evaluation Remarks"
+              value={editingResponse.evaluation_remarks}
               onChange={(e) =>
-                setEditingResponse({ ...editingResponse, grammarAnalysis: e.target.value })
-              }
-              mb="sm"
-            />
-            <TextInput
-              label="Grammar Marks"
-              value={editingResponse.grammarMarks}
-              onChange={(e) =>
-                setEditingResponse({ ...editingResponse, grammarMarks: e.target.value })
+                setEditingResponse({
+                  ...editingResponse,
+                  evaluation_remarks: e.target.value
+                })
               }
               mb="sm"
             />
