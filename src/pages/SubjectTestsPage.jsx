@@ -54,7 +54,7 @@ export default function SubjectTestsPage() {
 
     try {
       setLoading(true);
-      const response = await axios.post("https://saad810-lms-api-1.hf.space/answer/analyze", {
+      const response = await axios.post("https://saad810-lms-app-api.hf.space/answer/analyze", {
         "question": testData.question,
         "user_answer": answer,
         "subject": "history"
@@ -101,7 +101,7 @@ export default function SubjectTestsPage() {
     }
     try {
       setLoadingGrammer(true);
-      const response = await axios.post("http://127.0.0.1:5000/grammar/check", {
+      const response = await axios.post("https://saad810-lms-app-api.hf.space/grammar/check", {
         text: answer,
       });
       console.log(response.data);
@@ -164,7 +164,7 @@ export default function SubjectTestsPage() {
       console.log("Payload being sent:", payload);
 
       // Post the evaluation
-      const response = await axios.post("http://127.0.0.1:5000/evaluation", payload);
+      const response = await axios.post("https://saad810-lms-app-api.hf.space/evaluation", payload);
 
       console.log("Evaluation server response:", response.data);
       if (response.data) {
@@ -219,7 +219,7 @@ export default function SubjectTestsPage() {
     const id = getEvaluationId();
     const errors = extractAllErrors(grammarResult);
     try {
-      const response = await axios.put(`http://127.0.0.1:5000/evaluation/grammar/${id}`, {
+      const response = await axios.put(`https://saad810-lms-app-api.hf.space/evaluation/grammar/${id}`, {
         grammarAnalysis: errors,
       })
       console.log("Grammar remarks posted successfully!", response.data);
