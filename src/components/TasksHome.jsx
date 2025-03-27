@@ -44,7 +44,7 @@ export default function TasksHome() {
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("https://saad810-lms-api-1.hf.space/teacher-tasks");
+      const res = await axios.get("https://saad810-lms-app-api.hf.space/teacher-tasks");
       setTasks(res.data.tasks);
     } catch (error) {
       toast.error("Failed to fetch tasks");
@@ -106,7 +106,7 @@ export default function TasksHome() {
   // Handler for saving updated questions
   const handleSaveUpdate = async () => {
     try {
-      await axios.patch(`https://saad810-lms-api-1.hf.space/teacher-tasks/${selectedTask._id}`, {
+      await axios.patch(`https://saad810-lms-app-api.hf.space/teacher-tasks/${selectedTask._id}`, {
         questions: updatedQuestions
       });
       toast.success("Task updated successfully");
@@ -121,7 +121,7 @@ export default function TasksHome() {
   // Handler for delete confirmation
   const handleConfirmDelete = async () => {
     try {
-      await axios.delete(`https://saad810-lms-api-1.hf.space/teacher-tasks/delete?id=${selectedTask._id}`);
+      await axios.delete(`https://saad810-lms-app-api.hf.space/teacher-tasks/delete?id=${selectedTask._id}`);
       toast.success("Task deleted successfully");
       fetchTasks();
       closeDeleteModal();

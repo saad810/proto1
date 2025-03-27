@@ -52,7 +52,7 @@ export default function StudentResponse() {
     const fetchData = async () => {
       try {
         // Fetch responses from the server
-        const response = await axios.get("http://127.0.0.1:5000/evaluation/all");
+        const response = await axios.get("https://saad810-lms-app-api.hf.space/evaluation/all");
         let data = response.data;
         // If a subject is provided via URL, filter responses accordingly (case-insensitive)
         if (subject) {

@@ -42,7 +42,7 @@ export default function DocsManagement() {
   async function fetchFiles() {
     try {
       setLoadFiles(true);
-      const response = await axios.get("https://saad810-lms-api-1.hf.space/resources");
+      const response = await axios.get("https://saad810-lms-app-api.hf.space/resources");
       setFiles(response?.data?.resources);
       setCurrentPage(1); // Reset to first page when new files are fetched
     } catch (error) {
@@ -83,7 +83,7 @@ export default function DocsManagement() {
       formData.append("subject", subject);
     });
     try {
-      await axios.post("https://saad810-lms-api-1.hf.space/resources/upload", formData, {
+      await axios.post("https://saad810-lms-app-api.hf.space/resources/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
       setUploadedFiles([]);
@@ -102,7 +102,7 @@ export default function DocsManagement() {
     // Calculate the global index based on currentPage and pageSize
     const globalIndex = (currentPage - 1) * pageSize + indexInPage;
     try {
-      await axios.delete(`https://saad810-lms-api-1.hf.space/resources/delete?id=${files[globalIndex]._id}`);
+      await axios.delete(`https://saad810-lms-app-api.hf.space/resources/delete?id=${files[globalIndex]._id}`);
       // Remove file from files array
       setFiles(files.filter((_, i) => i !== globalIndex));
       toast.success("File deleted successfully!");
