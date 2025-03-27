@@ -57,7 +57,8 @@ export default function GenerateTasks() {
             alert(
                 `Generating ${numQuestions} ${questionType} questions for ${selectedBook} in ${subject}`
             )
-            const response = await axios.post("https://saad810-lms-api-1.hf.space/generate/questions", {
+            
+            const response = await axios.post("https://saad810-lms-api-1.hf.space/tasks/generate", {
                 book: "Beginning of World war 1",
                 subject: "history",
                 num_questions: numQuestions,
